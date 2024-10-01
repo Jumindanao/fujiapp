@@ -1,0 +1,13 @@
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+
+  background_image: "assets/backgroundsplash.jfif"
+  image: "assets/fujiLogo.png"
+  branding: "assets/fujibranding.png"
+
+  android_12:
+    color: "#d4e4ed"
+    image: "assets/blackbackgroundfuji.png"
+    branding: "assets/fujibranding.png"
