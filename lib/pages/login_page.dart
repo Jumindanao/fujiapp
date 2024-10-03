@@ -55,29 +55,37 @@ class _LoginPageState extends State<LoginPage> {
       if (session != null) {
         final data = await supabase
             .from('profiles')
-            .select('id,full_name,email,therole')
+            .select('id,full_name,email,therole,Privacy')
             .eq('id', userID);
         // gi load na ang data para ma gamit na sa next widget or screen
         final String uid = data[0]['id'];
         final String fullName = data[0]['full_name'];
         final String email = data[0]['email'];
         final String therole = data[0]['therole'];
+        final bool isPrivacy = (data[0]['Privacy'] ?? false) as bool;
         Readdata(
-            id: uid, theusername: fullName, theemail: email, therole: therole);
+            id: uid,
+            theusername: fullName,
+            theemail: email,
+            therole: therole,
+            isPrivacy: isPrivacy);
+
         if (therole == "Sensei") {
           Navigator.of(context).pushReplacementNamed('/AdminCourse',
               arguments: Readdata(
                   id: uid,
                   theusername: fullName,
                   theemail: email,
-                  therole: therole));
+                  therole: therole,
+                  isPrivacy: isPrivacy));
         } else {
           Navigator.of(context).pushReplacementNamed('/CoursePage',
               arguments: Readdata(
                   id: uid,
                   theusername: fullName,
                   theemail: email,
-                  therole: therole));
+                  therole: therole,
+                  isPrivacy: isPrivacy));
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

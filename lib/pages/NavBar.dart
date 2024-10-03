@@ -32,7 +32,8 @@ class _NavBarState extends State<NavBar> {
                       id: userData.id,
                       theusername: userData.theusername,
                       theemail: userData.theemail,
-                      therole: userData.therole));
+                      therole: userData.therole,
+                      isPrivacy: userData.isPrivacy));
             },
           ),
         ),

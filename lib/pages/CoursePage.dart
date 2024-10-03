@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fuji_app/classess/readdata.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fuji_app/pages/NavBar.dart';
 
 class CoursePage extends StatefulWidget {
@@ -10,9 +9,34 @@ class CoursePage extends StatefulWidget {
   State<CoursePage> createState() => _CoursePageState();
 }
 
-String? _selectedCourse;
-
 class _CoursePageState extends State<CoursePage> {
+  String? _selectedCourse;
+  String? n4title;
+  String? n5title;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCourses();
+  }
+
+  Future<void> _fetchCourses() async {
+    // Fetch the courses from Supabase
+    final response = await Supabase.instance.client
+        .from('CourseTable') // Ensure your table name is correct
+        .select('Title');
+
+    if (response != null && response.length >= 2) {
+      // Assuming there are at least two courses (n4 and n5)
+      setState(() {
+        n4title = response[0]['Title'];
+        n5title = response[1]['Title'];
+      });
+    } else {
+      print('Error fetching courses or not enough courses available');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,12 +47,6 @@ class _CoursePageState extends State<CoursePage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                // Navigates back when tapped
-              },
-            ),
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -39,7 +57,6 @@ class _CoursePageState extends State<CoursePage> {
               child: Row(
                 children: [
                   Text(
-                    // If no course is selected, show 'Select a course'
                     _selectedCourse ?? 'Select a course',
                     style: const TextStyle(color: Colors.black),
                   ),
@@ -75,17 +92,19 @@ class _CoursePageState extends State<CoursePage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Use null-safe check (_selectedCourse == courseName)
-                _buildCourseCard(
-                    'Japanese (N5)', _selectedCourse == 'Japanese (N5)'),
-                const SizedBox(width: 16),
-                _buildCourseCard(
-                    'Japanese (N4)', _selectedCourse == 'Japanese (N4)'),
-              ],
-            ),
+            if (n4title != null && n5title != null) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildCourseCard(n5title!, _selectedCourse == n5title),
+                  const SizedBox(width: 16),
+                  _buildCourseCard(n4title!, _selectedCourse == n4title),
+                ],
+              ),
+            ] else
+              const Center(
+                  child:
+                      CircularProgressIndicator()), // Display a loader while fetching
           ],
         ),
       ),
@@ -93,18 +112,10 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Widget _buildCourseCard(String courseName, bool isSelected) {
-    final Readdata userData =
-        ModalRoute.of(context)!.settings.arguments as Readdata;
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedCourse = courseName; // Update the selected course on tap
-          Navigator.of(context).pushReplacementNamed('/LearnPage',
-              arguments: Readdata(
-                  id: userData.id,
-                  theusername: userData.theusername,
-                  theemail: userData.theemail,
-                  therole: userData.therole));
+          _selectedCourse = courseName;
         });
       },
       child: Container(

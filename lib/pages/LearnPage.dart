@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fuji_app/classess/NavigatorFromCourse.dart';
 import 'package:fuji_app/classess/readdata.dart';
-
 import 'NavBar.dart';
 
 class LearnPage extends StatefulWidget {
@@ -13,32 +13,47 @@ class LearnPage extends StatefulWidget {
 class _LearnPageState extends State<LearnPage> {
   @override
   Widget build(BuildContext context) {
+    final NavigationArguments args =
+        ModalRoute.of(context)!.settings.arguments as NavigationArguments;
+
+    // Access user data and selected course
+    final Readdata userData = args.userData;
+    final String courseName = args.courseName;
+
     return Scaffold(
       backgroundColor: const Color(0xFFe6f0ff),
-      drawer: const NavBar(),
+      drawer: NavBar(),
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: [
-                  const Text(
-                    'Japanese (N5)',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  const SizedBox(width: 8),
-                  Image.network(
-                    'https://cdn-icons-png.flaticon.com/512/197/197604.png', // Japan flag
-                    width: 24,
-                    height: 24,
-                  ),
-                ],
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed(
+                  '/CoursePage',
+                  arguments: userData,
+                ); // Use userData directly
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      courseName, // Use the course name from arguments
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    const SizedBox(width: 8),
+                    Image.network(
+                      'https://cdn-icons-png.flaticon.com/512/197/197604.png', // Japan flag
+                      width: 24,
+                      height: 24,
+                    ),
+                  ],
+                ),
               ),
             ),
             const Spacer(),
@@ -124,13 +139,11 @@ class _LearnPageState extends State<LearnPage> {
                   ),
                 ],
               ),
-              const Icon(Icons
-                  .arrow_forward), // TO DO: You can add an action to enter description UI
+              const Icon(Icons.arrow_forward), // Placeholder for navigation
             ],
           ),
         ),
         const SizedBox(height: 12),
-
         // Wrap widget to create the icon layout
         Wrap(
           spacing: 16.0,

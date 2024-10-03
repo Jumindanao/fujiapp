@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fuji_app/classess/readdata.dart';
-import 'package:fuji_app/pages/EditProfilePage.dart';
+
 import 'package:fuji_app/pages/NavBar.dart';
 
 class UserProfileView extends StatefulWidget {
@@ -46,7 +46,8 @@ class _UserProfileViewState extends State<UserProfileView> {
                             id: userData.id,
                             theusername: userData.theusername,
                             theemail: userData.theemail,
-                            therole: userData.therole));
+                            therole: userData.therole,
+                            isPrivacy: userData.isPrivacy));
                   },
                   child: Container(
                     padding: const EdgeInsets.all(6),
