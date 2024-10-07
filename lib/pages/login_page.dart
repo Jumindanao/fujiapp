@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:fuji_app/classess/readdata.dart";
 
@@ -34,10 +33,8 @@ class _LoginPageState extends State<LoginPage> {
 
     final email = emailController.text;
     final password = passwordController.text;
-    final String userID;
 
     if (email.isEmpty || password.isEmpty) {
-      // Show an error message if fields are empty
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill in both fields")),
       );
@@ -48,21 +45,21 @@ class _LoginPageState extends State<LoginPage> {
       final AuthResponse authResponse = await supabase.auth
           .signInWithPassword(email: email, password: password);
 
-      userID = authResponse.user!.id;
+      final userID = authResponse.user!.id;
       final Session? session = authResponse.session;
-      // Checking na sa mga needed data and getting the ID for reference para ma
-      //get and data
+
       if (session != null) {
         final data = await supabase
             .from('profiles')
             .select('id,full_name,email,therole,Privacy')
             .eq('id', userID);
-        // gi load na ang data para ma gamit na sa next widget or screen
+
         final String uid = data[0]['id'];
         final String fullName = data[0]['full_name'];
         final String email = data[0]['email'];
         final String therole = data[0]['therole'];
         final bool isPrivacy = (data[0]['Privacy'] ?? false) as bool;
+
         Readdata(
             id: uid,
             theusername: fullName,
@@ -93,7 +90,6 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      // Catch any errors (like network errors) and show a message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Login failed: ${e.toString()}")),
       );
@@ -104,67 +100,133 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
+      body: Stack(
         children: [
-          const SizedBox(height: 80.0),
-          const Center(
-            child: Text(
-              "Login",
-              style: TextStyle(
-                fontSize: 32.0,
-                fontWeight: FontWeight.bold,
+          // Background Image with Gradient Overlay
+          Container(
+            decoration: BoxDecoration(
+              // image: const DecorationImage(
+              //   image: AssetImage("assets/fujiLogo.png"), // Add your image here
+              //   fit: BoxFit.cover,
+              // ),
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade200, Colors.blue.shade900],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
           ),
-          const SizedBox(height: 40.0),
-          const Center(
-            child: Text(
-              "FUJI APP",
-              style: TextStyle(
-                fontSize: 32.0,
-                fontWeight: FontWeight.bold,
+
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Fuji Logo
+                  Image.asset(
+                    'assets/fujiLogo.png', // Add your logo image
+                    height: 120,
+                    width: 120,
+                  ),
+                  const SizedBox(height: 20),
+                  // Login Text
+                  const Text(
+                    "Login",
+                    style: TextStyle(
+                      fontSize: 32.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // App Title
+                  const Text(
+                    "Fuji App",
+                    style: TextStyle(
+                      fontSize: 40.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 30.0),
+
+                  // Email Input Field
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: 'Email',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 20.0),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password Input Field
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: 'Password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 20.0),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Login Button
+                  ElevatedButton(
+                    onPressed: signIn,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 80.0),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Sign In',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Signup Button
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed('/signup');
+                    },
+                    child: const Text(
+                      'Don’t have an account? Register',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  //GOOGLE SIGNIN
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 40.0),
-          const Text(
-            "Email",
-            style: TextStyle(fontSize: 18.0),
-          ),
-          TextField(
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter your email',
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          const Text(
-            "Password",
-            style: TextStyle(fontSize: 18.0),
-          ),
-          TextField(
-            controller: passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter your password',
-            ),
-          ),
-          const SizedBox(height: 40.0),
-          ElevatedButton(
-            onPressed: () {
-              signIn();
-            },
-            child: const Text('Login'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/signup');
-            },
-            child: const Text('Signup'),
           ),
         ],
       ),

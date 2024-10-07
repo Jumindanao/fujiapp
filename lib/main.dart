@@ -3,7 +3,7 @@ import 'package:fuji_app/adminpages/AdminChallengeOptionPage.dart';
 import 'package:fuji_app/adminpages/AdminChallengesPage.dart';
 import 'package:fuji_app/adminpages/AdminCourse.dart';
 import 'package:fuji_app/adminpages/AdminLessonPage.dart';
-import 'package:fuji_app/adminpages/AdminPage.dart';
+
 import 'package:fuji_app/adminpages/AdminUnitsPage.dart';
 import 'package:fuji_app/pages/CoursePage.dart';
 import 'package:fuji_app/pages/DrawingCanvas.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/CoursePage',
+      initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),

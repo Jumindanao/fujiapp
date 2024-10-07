@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fuji_app/classess/NavigatorFromCourse.dart';
 import 'package:fuji_app/classess/readdata.dart';
 import 'NavBar.dart';
 
@@ -13,25 +12,21 @@ class LearnPage extends StatefulWidget {
 class _LearnPageState extends State<LearnPage> {
   @override
   Widget build(BuildContext context) {
-    final NavigationArguments args =
-        ModalRoute.of(context)!.settings.arguments as NavigationArguments;
-
-    // Access user data and selected course
-    final Readdata userData = args.userData;
-    final String courseName = args.courseName;
+    // Retrieve the selected course title passed from the CoursePage
+    final Map<String, dynamic> args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final String selectedCourse = args['selectedCourse'] as String;
+    final Readdata userData = args['userData'] as Readdata;
 
     return Scaffold(
       backgroundColor: const Color(0xFFe6f0ff),
-      drawer: NavBar(),
+      drawer: NavBar(userData: userData),
       appBar: AppBar(
         title: Row(
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pushReplacementNamed(
-                  '/CoursePage',
-                  arguments: userData,
-                ); // Use userData directly
+                Navigator.pop(context); // Navigate back to the previous page
               },
               child: Container(
                 padding:
@@ -43,7 +38,7 @@ class _LearnPageState extends State<LearnPage> {
                 child: Row(
                   children: [
                     Text(
-                      courseName, // Use the course name from arguments
+                      selectedCourse, // Show the selected course name here
                       style: const TextStyle(color: Colors.black),
                     ),
                     const SizedBox(width: 8),
@@ -139,12 +134,11 @@ class _LearnPageState extends State<LearnPage> {
                   ),
                 ],
               ),
-              const Icon(Icons.arrow_forward), // Placeholder for navigation
+              const Icon(Icons.arrow_forward),
             ],
           ),
         ),
         const SizedBox(height: 12),
-        // Wrap widget to create the icon layout
         Wrap(
           spacing: 16.0,
           runSpacing: 16.0,

@@ -15,13 +15,18 @@ class _UserProfileViewState extends State<UserProfileView> {
   Widget build(BuildContext context) {
     final TextEditingController _namecontroller = TextEditingController();
     final TextEditingController _emailcontroller = TextEditingController();
+
+    //parasa navbar ug other need information
     final Readdata userData =
         ModalRoute.of(context)!.settings.arguments as Readdata;
+
     _namecontroller.text = userData.theusername;
     _emailcontroller.text = userData.theemail;
     return Scaffold(
       backgroundColor: const Color(0xFFe6f0ff),
-      drawer: const NavBar(),
+      drawer: NavBar(
+        userData: userData,
+      ),
       appBar: AppBar(),
       body: Column(
         children: [

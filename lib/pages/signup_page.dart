@@ -22,7 +22,6 @@ class _SignupPageState extends State<SignupPage> {
   String uid = "";
   String full_name = "";
   String theemail = "";
-  //
 
   Future<void> signUpUser() async {
     final String userID;
@@ -31,7 +30,7 @@ class _SignupPageState extends State<SignupPage> {
         passwordController.text.isEmpty ||
         nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('fields are not filled'),
+        content: const Text('Fields are not filled'),
         backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -128,116 +127,207 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
+      body: Stack(
         children: [
-          const SizedBox(height: 80.0),
-          const Center(
-            child: Text(
-              "Sign Up",
-              style: TextStyle(
-                fontSize: 32.0,
-                fontWeight: FontWeight.bold,
+          // Background Image
+          Container(
+            decoration: BoxDecoration(
+              // image: const DecorationImage(
+              //   image: AssetImage(
+              //       "assets/background.png"), // Add your background image here
+              //   fit: BoxFit.cover,
+              // ),
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade200, Colors.blue.shade900],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
           ),
-          const SizedBox(height: 40.0),
-          const Text(
-            "Name",
-            style: TextStyle(fontSize: 18.0),
-          ),
-          TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter your name',
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          const Text(
-            "Email",
-            style: TextStyle(fontSize: 18.0),
-          ),
-          TextField(
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter your email',
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          const Text(
-            "Password",
-            style: TextStyle(fontSize: 18.0),
-          ),
-          TextField(
-            controller: passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter your password',
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          // Checkbox with clickable "Data Privacy Act"
-          Row(
-            children: [
-              Checkbox(
-                value: isChecked,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isChecked = value ?? false;
-                  });
-                },
-              ),
-              //Data privacy checking
-              const Text('I agree to the '),
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("Data Privacy Act"),
-                        content: const Text(
-                            "By signing up, you agree to our Data Privacy Act which protects your personal information."),
-                        actions: [
-                          TextButton(
-                            child: const Text("Close"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
+
+          // Page Content
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // // Logo Image
+                  // Image.asset(
+                  //   'assets/fujilogo.png', // Add your logo image here
+                  //   height: 120,
+                  //   width: 120,
+                  // ),
+                  const SizedBox(height: 20),
+
+                  // Sign Up Title
+                  const Text(
+                    "Sign Up",
+                    style: TextStyle(
+                      fontSize: 32.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // App Title
+                  const Text(
+                    "Fuji App",
+                    style: TextStyle(
+                      fontSize: 40.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Name Field
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: 'Enter your name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 20.0),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Email Field
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: 'Enter your email',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 20.0),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password Field
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: 'Enter your password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 20.0),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Checkbox for Data Privacy
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value ?? false;
+                          });
+                        },
+                      ),
+                      const Text(
+                        'I agree to the ',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Data Privacy Act"),
+                                content: const Text(
+                                    "By signing up, you agree to our Data Privacy Act which protects your personal information."),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Close"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
                             },
+                          );
+                        },
+                        child: const Text(
+                          'Data Privacy Act',
+                          style: TextStyle(
+                            color: Colors.greenAccent,
+                            decoration: TextDecoration.underline,
                           ),
-                        ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Signup Button
+                  ElevatedButton(
+                    onPressed: isChecked ? signUpUser : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 80.0),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Back to Login Button
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
-                  );
-                },
-                child: const Text(
-                  'Data Privacy Act',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                    child: const Text(
+                      'Already have an account? Log in',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 40.0),
-          ElevatedButton(
-            onPressed: isChecked
-                ? signUpUser
-                : null, // Disable button if checkbox is not checked
-            child: const Text('Signup'),
-          ),
-          const SizedBox(height: 20.0),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const LoginPage()));
-            },
-            child: const Text('Back'),
+            ),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fuji_app/pages/NavBar.dart';
+import 'package:fuji_app/classess/readdata.dart';
+import 'NavBar.dart';
 
 class CoursePage extends StatefulWidget {
   const CoursePage({super.key});
@@ -10,9 +11,8 @@ class CoursePage extends StatefulWidget {
 }
 
 class _CoursePageState extends State<CoursePage> {
+  List<String> courseTitles = [];
   String? _selectedCourse;
-  String? n4title;
-  String? n5title;
 
   @override
   void initState() {
@@ -21,26 +21,31 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Future<void> _fetchCourses() async {
-    // Fetch the courses from Supabase
-    final response = await Supabase.instance.client
-        .from('CourseTable') // Ensure your table name is correct
-        .select('Title');
+    final response =
+        await Supabase.instance.client.from('CourseTable').select('Title');
 
-    if (response != null && response.length >= 2) {
-      // Assuming there are at least two courses (n4 and n5)
+    if (response != null && response.isNotEmpty) {
       setState(() {
-        n4title = response[0]['Title'];
-        n5title = response[1]['Title'];
+        courseTitles = response
+            .map<String>((course) => course['Title'].toString())
+            .toList();
       });
     } else {
-      print('Error fetching courses or not enough courses available');
+      print('Error fetching courses or no courses available');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final Readdata userData =
+        ModalRoute.of(context)!.settings.arguments as Readdata;
+    final args = ModalRoute.of(context)!.settings.arguments;
+    if (args != null && args is String) {
+      _selectedCourse = args;
+    }
+
     return Scaffold(
-      drawer: const NavBar(),
+      drawer: NavBar(userData: userData),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -92,19 +97,19 @@ class _CoursePageState extends State<CoursePage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            if (n4title != null && n5title != null) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildCourseCard(n5title!, _selectedCourse == n5title),
-                  const SizedBox(width: 16),
-                  _buildCourseCard(n4title!, _selectedCourse == n4title),
-                ],
-              ),
-            ] else
-              const Center(
-                  child:
-                      CircularProgressIndicator()), // Display a loader while fetching
+            if (courseTitles.isNotEmpty)
+              Center(
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  alignment: WrapAlignment.center,
+                  children: courseTitles.map((course) {
+                    return _buildCourseCard(course, _selectedCourse == course);
+                  }).toList(),
+                ),
+              )
+            else
+              const Center(child: CircularProgressIndicator()),
           ],
         ),
       ),
@@ -112,8 +117,19 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Widget _buildCourseCard(String courseName, bool isSelected) {
+    final Readdata userData =
+        ModalRoute.of(context)!.settings.arguments as Readdata;
     return GestureDetector(
       onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/LearnPage',
+          arguments: {
+            'selectedCourse': courseName,
+            'userData': userData, // Pass the Readdata object here
+          },
+        );
+
         setState(() {
           _selectedCourse = courseName;
         });
@@ -122,14 +138,13 @@ class _CoursePageState extends State<CoursePage> {
         width: 140,
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected
-                ? Colors.green
-                : Colors.black, // Set border color based on selection
+            color: isSelected ? Colors.green : Colors.black,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -146,9 +161,7 @@ class _CoursePageState extends State<CoursePage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? Colors.blue
-                      : Colors.black, // Set text color based on selection
+                  color: isSelected ? Colors.blue : Colors.black,
                 ),
               ),
             ),
