@@ -11,7 +11,9 @@ class CoursePage extends StatefulWidget {
 }
 
 class _CoursePageState extends State<CoursePage> {
+  String? courseID;
   List<String> courseTitles = [];
+  List<String> courseIDs = []; // List to store CourseIDs
   String? _selectedCourse;
 
   @override
@@ -21,13 +23,18 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Future<void> _fetchCourses() async {
-    final response =
-        await Supabase.instance.client.from('CourseTable').select('Title');
+    final response = await Supabase.instance.client
+        .from('CourseTable')
+        .select('CourseID, Title');
 
-    if (response != null && response.isNotEmpty) {
+    if (response.isNotEmpty) {
       setState(() {
+        // Store the course titles and their corresponding IDs
         courseTitles = response
             .map<String>((course) => course['Title'].toString())
+            .toList();
+        courseIDs = response
+            .map<String>((course) => course['CourseID'].toString())
             .toList();
       });
     } else {
@@ -39,10 +46,6 @@ class _CoursePageState extends State<CoursePage> {
   Widget build(BuildContext context) {
     final Readdata userData =
         ModalRoute.of(context)!.settings.arguments as Readdata;
-    final args = ModalRoute.of(context)!.settings.arguments;
-    if (args != null && args is String) {
-      _selectedCourse = args;
-    }
 
     return Scaffold(
       drawer: NavBar(userData: userData),
@@ -103,9 +106,10 @@ class _CoursePageState extends State<CoursePage> {
                   spacing: 16,
                   runSpacing: 16,
                   alignment: WrapAlignment.center,
-                  children: courseTitles.map((course) {
-                    return _buildCourseCard(course, _selectedCourse == course);
-                  }).toList(),
+                  children: List.generate(courseTitles.length, (index) {
+                    return _buildCourseCard(courseTitles[index],
+                        _selectedCourse == courseTitles[index], index);
+                  }),
                 ),
               )
             else
@@ -116,23 +120,26 @@ class _CoursePageState extends State<CoursePage> {
     );
   }
 
-  Widget _buildCourseCard(String courseName, bool isSelected) {
+  Widget _buildCourseCard(String courseName, bool isSelected, int index) {
     final Readdata userData =
         ModalRoute.of(context)!.settings.arguments as Readdata;
+
     return GestureDetector(
       onTap: () {
+        setState(() {
+          _selectedCourse = courseName;
+          courseID = courseIDs[index];
+        });
+
         Navigator.pushNamed(
           context,
           '/LearnPage',
           arguments: {
             'selectedCourse': courseName,
-            'userData': userData, // Pass the Readdata object here
+            'userData': userData,
+            'courseID': courseID,
           },
         );
-
-        setState(() {
-          _selectedCourse = courseName;
-        });
       },
       child: Container(
         width: 140,

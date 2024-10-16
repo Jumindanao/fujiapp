@@ -13,6 +13,7 @@ import 'package:fuji_app/pages/HomePageWidget.dart';
 import 'package:fuji_app/pages/Leaderboardpage.dart';
 import 'package:fuji_app/pages/LearnPage.dart';
 import 'package:fuji_app/pages/QuizPage.dart';
+import 'package:fuji_app/pages/UnitsFetcher.dart';
 import 'package:fuji_app/pages/login_page.dart';
 import 'package:fuji_app/pages/signup_page.dart';
 import 'package:fuji_app/pages/userprofile.dart';
@@ -65,6 +66,7 @@ class MyApp extends StatelessWidget {
         '/AdminChallengesPage': (context) => const AdminChallengesPage(),
         '/AdminChallengeOptionPage': (context) =>
             const AdminChallengeOptionPage(),
+        '/fetchertest': (context) => UnitsFetcher(),
       },
     );
   }
