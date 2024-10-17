@@ -126,6 +126,7 @@ class _LearnPageState extends State<LearnPage> {
 
     final String selectedCourse = args['selectedCourse'] as String;
     final Readdata userData = args['userData'] as Readdata;
+    final userId = userData.id; // Extract userID
 
     return Scaffold(
       backgroundColor: const Color(0xFFe6f0ff),
@@ -189,6 +190,7 @@ class _LearnPageState extends State<LearnPage> {
                         'Description not available', // Unit Description
                     units[index]['UnitID'], // Pass UnitID to fetch lessons
                     index,
+                    userId, // Pass userID to the _buildUnitSection
                   );
                 },
               ),
@@ -197,12 +199,13 @@ class _LearnPageState extends State<LearnPage> {
   }
 
   Widget _buildUnitSection(
-    BuildContext context,
-    String unitTitle,
-    String unitDescription,
-    String unitID,
-    int index,
-  ) {
+      BuildContext context,
+      String unitTitle,
+      String unitDescription,
+      String unitID,
+      int index,
+      String userID // Accept userID here
+      ) {
     List<Map<String, dynamic>> lessonsForUnit = unitLessons[unitID] ?? [];
     IconData iconData = unitIcons[unitTitle] ?? Icons.help;
 
@@ -250,7 +253,8 @@ class _LearnPageState extends State<LearnPage> {
             return _buildCircularIcon(
               lesson['Title'],
               _getIconForStatus(lesson['status']),
-              lesson['LessonID'], // Pass LessonID to _buildCircularIcon
+              lesson['LessonID'],
+              userID, // Pass userID to _buildCircularIcon
             );
           }).toList(),
         ),
@@ -259,18 +263,19 @@ class _LearnPageState extends State<LearnPage> {
   }
 
   Widget _buildCircularIcon(
-      String lessonTitle, IconData iconData, String lessonID) {
+      String lessonTitle, IconData iconData, String lessonID, String userID) {
     return GestureDetector(
       onTap: () {
-        // Navigate to QuizPage and pass the lessonID
+        // Navigate to QuizPage and pass the lessonID and userID
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const QuizPage(),
             settings: RouteSettings(
               arguments: {
-                'lessonID': lessonID
-              }, // Passing the LessonID to QuizPage
+                'lessonID': lessonID,
+                'userID': userID, // Passing the userID to QuizPage
+              },
             ),
           ),
         );

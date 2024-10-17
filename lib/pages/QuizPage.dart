@@ -21,6 +21,8 @@ class _QuizPageState extends State<QuizPage> {
   bool hasQuizzes = false; // New variable to track if quizzes are available
   List<List<Offset>> lines = [];
   List<Offset> points = [];
+  String thechallengeID = '';
+  String userID = '';
   final FlutterTts flutterTts = FlutterTts(); // Initialize TTS instance
   final mlkit.Ink _ink = mlkit
       .Ink(); // Use prefixed Ink class // Object to store strokes for recognition
@@ -64,10 +66,12 @@ class _QuizPageState extends State<QuizPage> {
     await flutterTts.setVolume(3.0);
   }
 
+  Future<void> _getChallengeProgressTable() async {}
+
   Future<void> _fetchQuizzes() async {
     final Map<String, dynamic> args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final String lessonID = args['lessonID']; // Get the LessonID from arguments
+    final String lessonID = args['lessonID'];
 
     final response = await Supabase.instance.client
         .from('ChallengesTable')
@@ -78,6 +82,7 @@ class _QuizPageState extends State<QuizPage> {
     final data = response;
 
     if (data.isNotEmpty) {
+      thechallengeID = data[currentQuizIndex]['ChallengeID'];
       setState(() {
         quizzes = List<Map<String, dynamic>>.from(data);
         hasQuizzes = true; // IF NA FETCH ANG QUIZ MAHIMONG TRUE
@@ -85,7 +90,39 @@ class _QuizPageState extends State<QuizPage> {
     } else {
       setState(() {
         hasQuizzes = false; // IF WALA THEN FALSE
+        thechallengeID = 'nothing';
       });
+    }
+  }
+
+  Future<void> insertChallengeProgressTable() async {
+    final Map<String, dynamic> args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    userID = args['userID']; // Fetch user ID from passed arguments
+
+    // Get the challenge ID dynamically based on the current quiz
+    thechallengeID = quizzes[currentQuizIndex]['ChallengeID'];
+
+    const bool iscomplete = true;
+
+    // Check if the progress already exists to prevent duplicates
+    final existingProgress = await Supabase.instance.client
+        .from('ChallengeProgressTable')
+        .select()
+        .eq('ChallengeID', thechallengeID)
+        .eq('UserID', userID)
+        .maybeSingle();
+
+    if (existingProgress == null) {
+      // Insert progress only if it doesn't already exist
+      await Supabase.instance.client.from('ChallengeProgressTable').insert({
+        'ChallengeID': thechallengeID,
+        'UserID': userID,
+        'isComplete': iscomplete,
+      });
+    } else {
+      print(
+          'Progress already exists for ChallengeID: $thechallengeID and UserID: $userID');
     }
   }
 
@@ -137,7 +174,7 @@ class _QuizPageState extends State<QuizPage> {
     double containerSize = MediaQuery.of(context).size.width * 0.8;
 
     /// DIRI MAG SUGOD UG RECOGNITION SA TEXT
-    Future<void> _recogniseText(
+    Future<void> recogniseText(
         BuildContext context, String correctKanji) async {
       if (_digitalInkRecognizer != null && _ink.strokes.isNotEmpty) {
         try {
@@ -148,7 +185,9 @@ class _QuizPageState extends State<QuizPage> {
           }
 
           bool correct = recognizedText == correctKanji;
-
+          if (correct) {
+            insertChallengeProgressTable(); // Call the function here
+          }
           // Show custom bottom sheet with the recognition result
           showCustomBottomSheet(
             context,
@@ -274,7 +313,7 @@ class _QuizPageState extends State<QuizPage> {
             children: [
               ElevatedButton(
                 onPressed: () =>
-                    _recogniseText(context, kanjiText), // Recognize button
+                    recogniseText(context, kanjiText), // Recognize button
                 child: const Text('Recognize'),
               ),
               SizedBox(width: 16),
@@ -468,6 +507,13 @@ class _QuizPageState extends State<QuizPage> {
       bool correct =
           quizzes[currentQuizIndex]['Options'][selectedOptionIndex]['Correct'];
       isAnswerCorrect = correct;
+
+      // Call the database insertion if the answer is correct
+      if (correct) {
+        insertChallengeProgressTable(); // Call the function here
+      }
+
+      // Show custom bottom sheet
       showCustomBottomSheet(
         context,
         isCorrect: correct,
@@ -478,43 +524,6 @@ class _QuizPageState extends State<QuizPage> {
     });
   }
 
-  // DESIGN FOR CHECKING SA WRITING NA QUIZ
-  void _checkWritingAnswer(BuildContext context, String correctKanji) async {
-    if (_digitalInkRecognizer != null && _ink.strokes.isNotEmpty) {
-      try {
-        final candidates = await _digitalInkRecognizer?.recognize(_ink);
-        String recognizedText = '';
-        if (candidates != null && candidates.isNotEmpty) {
-          recognizedText = candidates.first.text;
-        }
-
-        bool correct = recognizedText == correctKanji;
-
-        // Show custom bottom sheet with the recognition result
-        showCustomBottomSheet(
-          context,
-          isCorrect: correct,
-          message: correct ? 'Correct!' : 'Try Again',
-          action: correct ? moveToNextQuiz : () {},
-          buttonText: correct ? 'NEXT' : 'RETRY',
-          buttonColor: correct ? Colors.green : Colors.red,
-          messageColor: correct ? Colors.green : Colors.red,
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Recognition Error: $e'),
-          duration: Duration(seconds: 2),
-        ));
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Please draw before recognition'),
-        duration: Duration(seconds: 2),
-      ));
-    }
-  }
-  // END SA DESIGN SA WRITING QUIZ
-
   void moveToNextQuiz() {
     setState(() {
       selectedOptionIndex = null;
@@ -524,31 +533,8 @@ class _QuizPageState extends State<QuizPage> {
     });
   }
 
-  Future<void> _saveProgress(int challengeId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-
-    if (userId == null) {
-      print('No user logged in');
-      return;
-    }
-
-    final response =
-        await Supabase.instance.client.from('ChallengeProgressTable').insert({
-      'ChallengeID': challengeId,
-      'UserID': userId,
-      'isCompleted': true,
-    });
-
-    if (response.error != null) {
-      print('Error saving progress: ${response.error!.message}');
-    } else {
-      print('Progress saved successfully');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    print(quizzes);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.greenAccent,
